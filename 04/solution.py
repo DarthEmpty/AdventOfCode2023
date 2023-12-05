@@ -21,13 +21,11 @@ def part_2(contents: List[List[str]]) -> int:
     # i.e. At first, we have 1 copy of all cards
     card_collection = [1 for _ in range(len(contents))]
     
-    for i, card in enumerate(contents):
-        quantity_won = get_win_quantity(card)
-        
+    for i, card in enumerate(contents):        
         # Identical cards will always produce the same result
         # so we don't have to evaluate them individually.
         # Cards won would increase by the number copies of the current card that we have.
-        for won_id in range(i + quantity_won, i, -1):
+        for won_id in range(i + get_win_quantity(card), i, -1):
             card_collection[won_id] += card_collection[i]
     
     return sum(card_collection)

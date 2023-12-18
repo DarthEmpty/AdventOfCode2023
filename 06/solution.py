@@ -1,5 +1,5 @@
 from typing import List, Tuple
-from math import prod, sqrt, ceil, floor
+from math import prod, sqrt
 import re
 
 FILENAME = "06/input.txt"

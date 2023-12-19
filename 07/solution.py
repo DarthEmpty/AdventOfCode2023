@@ -29,8 +29,6 @@ if __name__ == "__main__":
     with open(FILENAME) as file:
         contents = file.read().splitlines()
     
-    jh = JokerHand("JJKKK", 0)
-    
     print(part_1(contents))
     print(part_2(contents))
 

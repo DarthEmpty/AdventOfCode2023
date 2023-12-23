@@ -7,7 +7,7 @@ FILENAME = "07/input.txt"
 
 def part_1(contents: List[str]) -> int:
     hands = [line.split(" ") for line in contents]
-    hands = sorted([PokerHand(hand[0], int(hand[1])) for hand in hands])
+    hands = sorted([PokerHand(cards, int(bid)) for cards, bid in hands])
     
     return sum(
         rank * hand.bid
@@ -17,7 +17,7 @@ def part_1(contents: List[str]) -> int:
 
 def part_2(contents: List[str]) -> int:
     hands = [line.split(" ") for line in contents]
-    hands = sorted([JokerHand(hand[0], int(hand[1])) for hand in hands])
+    hands = sorted([JokerHand(cards, int(bid)) for cards, bid in hands])
     
     return sum(
         rank * hand.bid

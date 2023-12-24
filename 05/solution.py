@@ -44,9 +44,9 @@ def extract_triplets(triplet_list: List[str]) -> List[TRIPLET]:
 
 
 def interpret(
-        contents: List[str],
-        seed_ranges=False
-    ) -> Tuple[List[int] | List[range], List[MAP]]:
+    contents: List[str],
+    seed_ranges=False
+) -> Tuple[List[int] | List[range], List[MAP]]:
     
     seed_string = contents.pop(0)
     

@@ -1,13 +1,13 @@
 from typing import List, Tuple, Dict
-from itertools import chain
 
 import re
 
 FILENAME = "05/input.txt"
 
+# ( Dest_Start, Source_Start, Range_Length )
 TRIPLET = Tuple[int, int, int]
 
-# Source range: Dest
+# { Source_Range: Dest }
 MAP = Dict[range, int]
 
 
@@ -37,7 +37,6 @@ def extract_triplets(triplet_list: List[str]) -> List[TRIPLET]:
         if not line:
             triplets.append(list())
         
-        # Dest Start, Source Start, Range Length
         elif (numbers := re.match(r"(\d+) (\d+) (\d+)", line)):
             triplets[-1].append(tuple(int(num) for num in numbers.groups()))
             
@@ -107,7 +106,6 @@ def apply_map_to_source_range(map: MAP, source: range) -> List[range]:
     return res
         
 
-
 def part_1(seeds: List[int], maps: List[MAP]) -> int:
     smallest = None
     
@@ -140,7 +138,7 @@ def part_2(seed_ranges: List[range], maps: List[MAP]) -> int:
 
         all_locations.extend(locations)
     
-    return sorted(all_locations, key=lambda r: r.start)[0].start
+    return min(location.start for location in all_locations)
 
 
 if __name__ == "__main__":

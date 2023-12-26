@@ -4,28 +4,29 @@ import re
 FILENAME = "09/input.txt"
 
 
-def next_number_in(sequence: List[int]) -> int:
-    if len(seq_set := set(sequence)) == 1 and 0 in seq_set:
-        return 0
-    
-    new_sequence = [
+def is_zero_sequence(sequence: List[int]) -> bool:
+    return len(seq_set := set(sequence)) == 1 and 0 in seq_set
+
+
+def difference_sequence(sequence):
+    return [
         sequence[i + 1] - sequence[i]
         for i in range(len(sequence) - 1)
     ]
+
+
+def next_number_in(sequence: List[int]) -> int:
+    if is_zero_sequence(sequence):
+        return 0
     
-    return sequence[-1] + next_number_in(new_sequence)
+    return sequence[-1] + next_number_in(difference_sequence(sequence))
 
 
 def prev_number_in(sequence: List[int]) -> int:
-    if len(seq_set := set(sequence)) == 1 and 0 in seq_set:
+    if is_zero_sequence(sequence):
         return 0
     
-    new_sequence = [
-        sequence[i + 1] - sequence[i]
-        for i in range(len(sequence) - 1)
-    ]
-    
-    return sequence[0] - prev_number_in(new_sequence)
+    return sequence[0] - prev_number_in(difference_sequence(sequence))
 
 
 def part_1(sequences: List[List[int]]) -> int:   

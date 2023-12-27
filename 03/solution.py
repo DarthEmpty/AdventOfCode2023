@@ -1,6 +1,5 @@
 from typing import List, Tuple
 import numpy as np
-import re
 import string
 
 FILENAME = "03/input.txt"

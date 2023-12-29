@@ -1,16 +1,20 @@
 from enum import Enum, auto
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Iterable
+from  colorama import init as cr_init, Fore, Style
+from dataclasses import dataclass
 
 import numpy as np
 
 COORD = Tuple[int]
+
+cr_init()
 
 
 def to_coord(array: np.ndarray) -> COORD:
         return (int(array[0]), int(array[1]))
 
 
-# String enum (in the abcense of the functionality in 3.10)
+# String enum (in the absence of the functionality in 3.10)
 class TileType:
     NORTHSOUTH = "|"
     NORTHEAST = "L"
@@ -55,10 +59,23 @@ class Maze:
     
     def __init__(self, grid: List[List[str]]) -> "Maze":
         self.grid = np.array(grid)
+        self.visited = np.zeros(self.grid.shape, dtype=np.int64)
+        self.start = to_coord(np.where(self.grid == TileType.START))
+        
+    
+    def __str__(self) -> str:
+        
+        color_in = np.vectorize(lambda s: Fore.GREEN + s if s != "`" else Style.RESET_ALL + s)
+        revealed = color_in(np.where(self.visited, self.grid, "`"))
+        
+        return "\n".join(["".join(row) for row in revealed])
 
-    def is_valid(self, tile: COORD) -> bool:
+    def is_in_bounds(self, tile: COORD) -> bool:
         return tile[0] >= 0 and tile[0] < np.size(self.grid, 0) \
             and tile[1] >= 0 and tile[1] < np.size(self.grid, 1)
+    
+    def visit(self, tile: COORD):
+        self.visited[tile] = 1
 
     def get_adjacent_tiles(self, tile: COORD) -> Dict[Cardinal, COORD]:
         row, col = tile
@@ -70,7 +87,7 @@ class Maze:
         }
         
         for adj in adjacent_tiles:
-            if not self.is_valid(adjacent_tiles[adj]):
+            if not self.is_in_bounds(adjacent_tiles[adj]):
                 adjacent_tiles.pop(adj)
         
         return adjacent_tiles
@@ -85,4 +102,13 @@ class Maze:
                 children.append(tile)
         
         return children
+
+
+# @dataclass
+# class Tile:
+#     coord: COORD
+#     parent: "Tile" = None
+#     children: List["Tile"] = []
+    
+#     def 
         

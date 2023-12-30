@@ -6,20 +6,19 @@ FILENAME = "10/input.txt"
 
 
 def part_1(maze: Maze) -> int:
-    children = []
-    current_tile = maze.start
+    current = maze.start
     steps = 0
+    to_visit = []
     
-    # TODO: Recreate Maze file to consider shape of current pipe
-    while not maze.visited[current_tile]:
-        children.extend([
-            (child, steps + 1)
-            for child in maze.get_children(current_tile)
-            if not maze.visited[child]
-        ])
+    while not maze.has_been_visited(current):
+        maze.visit(current)
+        to_visit.extend(
+            (steps + 1, neighbour)
+            for neighbour in maze.get_neighbours(current)
+            if not maze.has_been_visited(neighbour)
+        )        
         
-        maze.visit(current_tile)
-        current_tile, steps = children.pop(0)
+        steps, current = to_visit.pop(0)
     
     print(maze)
     

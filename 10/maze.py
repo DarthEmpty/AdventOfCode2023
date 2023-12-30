@@ -1,114 +1,63 @@
 from enum import Enum, auto
-from typing import List, Tuple, Dict, Iterable
+from typing import List, Tuple, Dict
 from  colorama import init as cr_init, Fore, Style
 from dataclasses import dataclass
 
 import numpy as np
 
-COORD = Tuple[int]
+COORDS = Tuple[np.ndarray]
 
 cr_init()
 
 
-def to_coord(array: np.ndarray) -> COORD:
-        return (int(array[0]), int(array[1]))
-
-
-# String enum (in the absence of the functionality in 3.10)
-class TileType:
-    NORTHSOUTH = "|"
-    NORTHEAST = "L"
-    NORTHWEST = "J"
-    SOUTHEAST = "F"
-    SOUTHWEST = "7"
-    EASTWEST = "-"
-    START = "S"
-    GROUND = "."
-
-
-class Cardinal(Enum):
-    NORTH = auto()
-    EAST  = auto()
-    SOUTH = auto()
-    WEST  = auto()
+CARDINALS = {
+    "north": (-1, 0),
+    "east" : (0, 1),
+    "south": (1, 0),
+    "west" : (0, -1)
+}
 
 
 class Maze:
-    VALID_TILES_IN_DIRECTION = {
-        Cardinal.NORTH: (
-            TileType.NORTHSOUTH,
-            TileType.SOUTHEAST,
-            TileType.SOUTHWEST
-        ),
-        Cardinal.EAST: (
-            TileType.EASTWEST,
-            TileType.NORTHWEST,
-            TileType.SOUTHWEST
-        ),
-        Cardinal.SOUTH: (
-            TileType.NORTHSOUTH,
-            TileType.NORTHEAST,
-            TileType.NORTHWEST
-        ),
-        Cardinal.WEST: (
-            TileType.EASTWEST,
-            TileType.NORTHEAST,
-            TileType.SOUTHEAST
-        )
+    PIPE_DIRECTIONS = {
+        "|": (CARDINALS["north"], CARDINALS["south"]),
+        "L": (CARDINALS["north"], CARDINALS["east"]),
+        "J": (CARDINALS["north"], CARDINALS["west"]),
+        "F": (CARDINALS["south"], CARDINALS["east"]),
+        "7": (CARDINALS["south"], CARDINALS["west"]),
+        "-": (CARDINALS["east"], CARDINALS["west"]),
     }
     
     def __init__(self, grid: List[List[str]]) -> "Maze":
-        self.grid = np.array(grid)
-        self.visited = np.zeros(self.grid.shape, dtype=np.int64)
-        self.start = to_coord(np.where(self.grid == TileType.START))
+        self._grid = np.array(grid)
+        self._visited = np.zeros(self._grid.shape, dtype=np.int64)
         
+        self.start = np.where(self._grid == "S")
+        
+        # Can replace S symbol given the input
+        self._grid[self.start] = "J"
     
     def __str__(self) -> str:
-        
-        color_in = np.vectorize(lambda s: Fore.GREEN + s if s != "`" else Style.RESET_ALL + s)
-        revealed = color_in(np.where(self.visited, self.grid, "`"))
+        unvisited_char = "`"
+        color_in = np.vectorize(lambda s: Fore.GREEN + s if s != unvisited_char else Style.RESET_ALL + s)
+        revealed = color_in(np.where(self._visited, self._grid, unvisited_char))
         
         return "\n".join(["".join(row) for row in revealed])
-
-    def is_in_bounds(self, tile: COORD) -> bool:
-        return tile[0] >= 0 and tile[0] < np.size(self.grid, 0) \
-            and tile[1] >= 0 and tile[1] < np.size(self.grid, 1)
     
-    def visit(self, tile: COORD):
-        self.visited[tile] = 1
-
-    def get_adjacent_tiles(self, tile: COORD) -> Dict[Cardinal, COORD]:
-        row, col = tile
-        adjacent_tiles = {
-            Cardinal.NORTH: (row - 1, col),
-            Cardinal.EAST : (row, col + 1),
-            Cardinal.SOUTH: (row + 1, col),
-            Cardinal.WEST : (row, col - 1),
-        }
-        
-        for adj in adjacent_tiles:
-            if not self.is_in_bounds(adjacent_tiles[adj]):
-                adjacent_tiles.pop(adj)
-        
-        return adjacent_tiles
+    def visit(self, coords: COORDS):
+        self._visited[coords] = 1
     
-    def get_children(self, parent_tile: COORD) -> List[COORD]:
-        adjacent_tiles = self.get_adjacent_tiles(parent_tile)
-        children = []
-        
-        for cardinal in adjacent_tiles:
-            tile = adjacent_tiles[cardinal]
-            if self.grid[tile] in Maze.VALID_TILES_IN_DIRECTION[cardinal]:
-                children.append(tile)
-        
-        return children
-
-
-# @dataclass
-# class Tile:
-#     coord: COORD
-#     parent: "Tile" = None
-#     children: List["Tile"] = []
+    def has_been_visited(self, coords: COORDS) -> bool:
+        return self._visited[coords]
     
-#     def 
-        
+    def clear(self):
+        self._visited = np.zeros(self._grid.shape, dtype=np.int64)
+    
+    def is_in_bounds(self, coords: COORDS):
+        return (0, 0) <= coords and coords <= self._grid.shape
+    
+    def get_neighbours(self, coords:COORDS) -> List[COORDS]:        
+        return [
+            (coords[0] + direction[0], coords[1] + direction[1])
+            for direction in Maze.PIPE_DIRECTIONS[self._grid[coords][0]]
+        ]

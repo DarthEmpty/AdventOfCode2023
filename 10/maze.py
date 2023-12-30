@@ -50,12 +50,6 @@ class Maze:
     def has_been_visited(self, coords: COORDS) -> bool:
         return self._visited[coords]
     
-    def clear(self):
-        self._visited = np.zeros(self._grid.shape, dtype=np.int64)
-    
-    def is_in_bounds(self, coords: COORDS):
-        return (0, 0) <= coords and coords <= self._grid.shape
-    
     def get_neighbours(self, coords:COORDS) -> List[COORDS]:        
         return [
             (coords[0] + direction[0], coords[1] + direction[1])
